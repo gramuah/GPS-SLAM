@@ -146,7 +146,16 @@ set(YAML_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/ThirdLibs/install/include/yaml-cpp")
 find_package(Protobuf REQUIRED)
 set(TENSORBOARD_LOGGER_DIR "${CMAKE_SOURCE_DIR}/ThirdLibs/install")
 find_package(tensorboard_logger REQUIRED REQUIRED HINTS ${TENSORBOARD_LOGGER_DIR})
-set(Protobuf_LIBRARIES "/usr/lib/x86_64-linux-gnu/libprotobuf.so")
+if (NOT Protobuf_LIBRARIES)
+    set(Protobuf_LIBRARIES protobuf)
+endif()
+file(GLOB ABSL_LIBRARIES "${Protobuf_INCLUDE_DIRS}/../lib/libabsl_*.so*" "$ENV{CONDA_PREFIX}/lib/libabsl_*.so*" "/home/alexis/miniconda3/envs/ovo/lib/libabsl_*.so*")
+find_package(CURL QUIET)
+if (CURL_FOUND)
+    set(SYSTEM_CURL_LIBRARY CURL::libcurl)
+else()
+    find_library(SYSTEM_CURL_LIBRARY NAMES curl libcurl PATHS /usr/lib/x86_64-linux-gnu)
+endif()
 message(STATUS "Protobuf_VERSION: ${Protobuf_VERSION}")
 message(STATUS "Protobuf_INCLUDE_DIRS: ${Protobuf_INCLUDE_DIRS}")
 message(STATUS "Protobuf_LIBRARIES: ${Protobuf_LIBRARIES}")
@@ -221,6 +230,8 @@ target_link_libraries(slam_trainer PUBLIC
         tensorboard_logger
         libyaml-cpp.a
         ${Protobuf_LIBRARIES}
+        ${ABSL_LIBRARIES}
+        ${SYSTEM_CURL_LIBRARY}
         InputSource 
         ITMLib 
         MiniSlamGraphLib 
@@ -248,6 +259,8 @@ target_link_libraries(remote_viewer PUBLIC
         tensorboard_logger
         libyaml-cpp.a
         ${Protobuf_LIBRARIES}
+        ${ABSL_LIBRARIES}
+        ${SYSTEM_CURL_LIBRARY}
         InputSource 
         ITMLib 
         MiniSlamGraphLib 
