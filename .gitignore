@@ -8,4 +8,5 @@ build/
 ThirdLibs/
 output/
 __pycache__/
-data/configs/navigator/
+data/
+configs/navigator/
